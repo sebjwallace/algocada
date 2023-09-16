@@ -1,0 +1,18 @@
+[package]
+name = "algocada"
+version = "0.1.0"
+authors = ["Sebastian Wallace <sebjwallace@gmail.com>"]
+edition = "2021"
+readme = "README.md"
+license = "Apache-2.0"
+description = "Algorithm arcade"
+homepage = "https://github.com/sebjwallace/algocada/"
+repository = "https://github.com/sebjwallace/algocada/"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+console = "0.15.7"
+keyboard_query = "0.1.0"
+rand = "0.8.5"
+ruscii = "0.4.0"
