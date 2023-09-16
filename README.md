@@ -1,4 +1,5 @@
-# algocada
-algocado ~= Algorithm...arcade....a
+# BOOTHSHAW
 
-The idea is to build games that allows the player to learn and explore the nature of digital computing. Similar to Zachtronics games, except open source and in the terminal interface.
+This repository is an arcade exploring games related to programming. It seems fitting then to associate the name to the pioneers of programming and gaming:
+- Kathleen Booth: the inventor of assembly language (which inspires the games in this repo).
+- Carol Shaw: the first ever game programmer.
