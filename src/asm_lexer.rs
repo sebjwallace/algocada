@@ -1,19 +1,30 @@
 
 #[derive(Debug, Clone)]
 pub struct Token {
-  lexeme: String,
+  pub lexeme: String,
 }
 
 #[derive(Debug, Clone)]
 pub enum TokenType {
   Text(Token),
   Number(Token),
+  Semicolon,
+  Err,
+}
+
+impl TokenType {
+    pub fn get_lexeme (&self) -> String {
+      match self {
+        TokenType::Text(tok) | TokenType::Number(tok) => tok.lexeme.clone(),
+        _ => "".to_string()
+      }
+    }
 }
 
 #[derive(Debug, Clone)]
 pub struct AsmLexer {
   pub tokens: Vec<TokenType>,
-  pub head: u32,
+  pub cursor: usize,
 }
 
 #[derive(Debug, Clone)]
@@ -25,7 +36,7 @@ enum State {
 
 impl AsmLexer {
   pub fn from_src(src: String) -> Self {
-    let mut lex = Self { tokens: vec![], head: 0 };
+    let mut lex = Self { tokens: vec![], cursor: 0 };
     let mut state: State = State::Base;
     for c in src.chars() {
       match c {
@@ -40,10 +51,10 @@ impl AsmLexer {
           match &mut state {
             State::Base => state = State::Number(Token { lexeme: c.to_string() }),
             State::Number(tok) => tok.lexeme.push(c),
-            State::Text(_) => {}
+            State::Text(tok) => tok.lexeme.push(c),
           }
         }
-        ' ' => {
+        ' ' | ';' => {
           match &state {
             State::Text(tok) => {
               lex.tokens.push(TokenType::Text(tok.clone()));
@@ -55,6 +66,10 @@ impl AsmLexer {
             },
             State::Base => {}
           }
+          match c {
+            ';' => lex.tokens.push(TokenType::Semicolon),
+            _ => {}
+          }
         },
         _ => {}
       }
@@ -62,7 +77,25 @@ impl AsmLexer {
     lex
   }
 
-  pub fn next(&mut self) { self.head += 1 }
+  pub fn current(&self) -> &TokenType {
+    match self.tokens.get(self.cursor) {
+      Some(tok) => tok,
+      None => &TokenType::Err
+    }
+  }
+
+  pub fn next(&mut self) -> &TokenType {
+    self.cursor += 1;
+    self.current()
+  }
+
+  pub fn next_lexeme(&mut self) -> String {
+    self.next().get_lexeme()
+  }
+
+  pub fn eof(&self) -> bool {
+    self.cursor >= self.tokens.len()
+  }
 }
 
 #[cfg(test)]
@@ -71,7 +104,7 @@ mod tests {
 
 	#[test]
 	fn test_lex_src() {
-    let src = "INT 1 AB ".to_string();
+    let src = "INT 1 AB;".to_string();
     let lex = AsmLexer::from_src(src);
     println!("{:?}", lex.tokens);
 	}
