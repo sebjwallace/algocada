@@ -1,5 +1,4 @@
-use super::asm_lexer::TokenType;
-use super::asm_lexer::AsmLexer;
+use super::lexer::{TokenType,AsmLexer};
 
 #[derive(Debug, Clone)]
 pub struct Program {
@@ -9,14 +8,16 @@ pub struct Program {
 impl Program {
   pub fn from_lexer(lex: &mut AsmLexer) -> Self {
     let mut instructions: Vec<Instruction> = vec![];
-    while !lex.eof() {
+    loop {
       match lex.current() {
         TokenType::Text(_) => {
           instructions.push(Instruction::from_lexer(lex));
           lex.next();
         }
         TokenType::Number(_) => {}
-        TokenType::Semicolon | TokenType::Err => { lex.next(); }
+        TokenType::Semicolon => { lex.next(); }
+        TokenType::Label(_) => todo!(),
+        TokenType::EOF => break
       }
     }
     Self { instructions }
@@ -44,6 +45,7 @@ pub enum Instruction {
   // Control flow
   CALL(UnaryOperand),
   RET,
+  HALT,
   // Time
   WAIT(UnaryOperand),
   // Misc

@@ -1,12 +1,11 @@
 use std::collections::HashMap;
+use super::parser::{Program, Instruction};
 
-use super::asm_parser::{Program, Instruction};
-
-pub struct AsmMachine {
+pub struct AsmVm {
   pub registers: HashMap<String, usize>
 }
 
-impl AsmMachine {
+impl AsmVm {
   pub fn new(registers: HashMap<String, usize>) -> Self {
     Self { registers }
   }
@@ -34,7 +33,7 @@ mod tests {
     let prog = Program{instructions: vec![
       Instruction::ADD(("R1".to_string(),"R2".to_string(),"R3".to_string()))
     ]};
-    let mut vm = AsmMachine::new(HashMap::from([
+    let mut vm = AsmVm::new(HashMap::from([
       ("R1".to_string(), 5),
       ("R2".to_string(), 2),
       ("R3".to_string(), 0),

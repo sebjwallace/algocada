@@ -8,8 +8,9 @@ pub struct Token {
 pub enum TokenType {
   Text(Token),
   Number(Token),
+  Label(Token),
   Semicolon,
-  Err,
+  EOF,
 }
 
 impl TokenType {
@@ -32,6 +33,7 @@ enum State {
   Base,
   Text(Token),
   Number(Token),
+  Label(Token),
 }
 
 impl AsmLexer {
@@ -44,7 +46,7 @@ impl AsmLexer {
           match &mut state {
             State::Base => state = State::Text(Token { lexeme: c.to_string() }),
             State::Text(tok) => tok.lexeme.push(c),
-            State::Number(_) => {}
+            State::Number(_) | State::Label(_) => {}
           }
         }
         '0'..='9' => {
@@ -52,6 +54,13 @@ impl AsmLexer {
             State::Base => state = State::Number(Token { lexeme: c.to_string() }),
             State::Number(tok) => tok.lexeme.push(c),
             State::Text(tok) => tok.lexeme.push(c),
+            State::Label(_) => {}
+          }
+        }
+        ':' => {
+          match &state {
+            State::Text(tok) => state = State::Label(tok.clone()),
+            _ => {}
           }
         }
         ' ' | ';' => {
@@ -64,6 +73,10 @@ impl AsmLexer {
               lex.tokens.push(TokenType::Number(tok.clone()));
               state = State::Base;
             },
+            State::Label(tok) => {
+              lex.tokens.push(TokenType::Label(tok.clone()));
+              state = State::Base;
+            }
             State::Base => {}
           }
           match c {
@@ -80,7 +93,7 @@ impl AsmLexer {
   pub fn current(&self) -> &TokenType {
     match self.tokens.get(self.cursor) {
       Some(tok) => tok,
-      None => &TokenType::Err
+      None => &TokenType::EOF
     }
   }
 
